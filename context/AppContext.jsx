@@ -16,7 +16,8 @@ export const AppContextProvider = ({ children }) => {
   const { getToken } = useAuth();
 
   const [chats, setChats] = useState([]);
-  const [selectedChat, setSelectedChat] = useState(null);
+  const [selectedChat, setSelectedChat] = useState({ name: "Loading...", messages: [] });
+
   const [loading, setLoading] = useState(true);
 
   const createNewChat = async () => {
@@ -55,14 +56,13 @@ export const AppContextProvider = ({ children }) => {
         setChats(allChats);
 
         if (allChats.length === 0) {
-          await createNewChat(); // create a default chat if none exists
+          await createNewChat();
+          setSelectedChat({ name: "New Chat", messages: [] }); // ✅ Safe fallback
           return;
         }
 
-        // Sort by most recently updated
         allChats.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
 
-        // Fallback in case messages are missing
         const recentChat = {
           ...allChats[0],
           messages: allChats[0].messages || [],
